@@ -11,6 +11,7 @@ import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.marker.AbstractShapeMarker;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MultiMarker;
+import de.fhpotsdam.unfolding.marker.SimplePointMarker;
 import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
 import de.fhpotsdam.unfolding.utils.MapUtils;
@@ -21,7 +22,7 @@ import processing.core.PApplet;
  * An application with an interactive map displaying earthquake data.
  * Author: UC San Diego Intermediate Software Development MOOC team
  * @author Marek Bodziony
- * Date: July 17, 2015
+ * Date: February 1, 2016
  * */
 public class EarthquakeCityMap extends PApplet {
 	
@@ -51,6 +52,7 @@ public class EarthquakeCityMap extends PApplet {
 	
 	// The map
 	private UnfoldingMap map;
+	int i = 0; // for printing only, delete after finishing the code
 	
 	// Markers for each city
 	private List<Marker> cityMarkers;
@@ -162,11 +164,26 @@ public class EarthquakeCityMap extends PApplet {
 	// set this "country" property already.  Otherwise it returns false.
 	private boolean isLand(PointFeature earthquake) {
 		
-		// IMPLEMENT THIS: loop over all countries to check if location is in any of them
-		// TODO: Implement this method using the helper method isInCountry
+		float quakeLat = 53; //earthquake.getLocation().getLat();
+		float quakeLon = 18; ///earthquake.getLocation().getLon();
+		
+		SimplePointMarker quake = new SimplePointMarker();
+		quake.setLocation(quakeLat, quakeLon);
+		quake.setColor(color(255,10,10));
+		
+		Marker country = countryMarkers.get(128); //get marker for Poland
+		
+		boolean aaaa = country.isInside(map, quakeLat, quakeLon);   // isInside(map, quakeLat, quakeLon);
+		
+		map.addMarker(country);
+		map.addMarker(quake);
+		
+		System.out.println(aaaa);
+		//System.out.println(quakeLat + ", " + quakeLon);
 		
 		
-		System.out.println(earthquake.getLocation());
+		//System.out.println(i + ". " + earthquake.getProperties());
+		//i++;
 		// not inside any country
 		return false;
 	}
