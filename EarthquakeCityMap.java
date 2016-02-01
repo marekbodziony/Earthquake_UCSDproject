@@ -164,22 +164,26 @@ public class EarthquakeCityMap extends PApplet {
 	// set this "country" property already.  Otherwise it returns false.
 	private boolean isLand(PointFeature earthquake) {
 		
-		float quakeLat = 53; //earthquake.getLocation().getLat();
-		float quakeLon = 18; ///earthquake.getLocation().getLon();
+		for(Marker country : countryMarkers){
+			boolean isQuakeOnLand = isInCountry(earthquake, country);
+			System.out.println(country.getClass());
+		}
 		
+			
 		SimplePointMarker quake = new SimplePointMarker();
-		quake.setLocation(quakeLat, quakeLon);
+		quake.setLocation(earthquake.getLocation());
 		quake.setColor(color(255,10,10));
+			
+		//if (isQuakeOnLand == true){
+			//Object whichCountry = earthquake.getProperties();
+			//System.out.println(whichCountry);
+		//}
 		
-		Marker country = countryMarkers.get(128); //get marker for Poland
 		
-		boolean aaaa = country.isInside(map, quakeLat, quakeLon);   // isInside(map, quakeLat, quakeLon);
-		
-		map.addMarker(country);
+		//map.addMarker(country);
 		map.addMarker(quake);
 		
-		System.out.println(aaaa);
-		//System.out.println(quakeLat + ", " + quakeLon);
+		//System.out.println(isQuakeOnLand);
 		
 		
 		//System.out.println(i + ". " + earthquake.getProperties());
