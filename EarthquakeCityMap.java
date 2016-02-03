@@ -1,7 +1,9 @@
 package module4;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.data.Feature;
@@ -53,6 +55,7 @@ public class EarthquakeCityMap extends PApplet {
 	// The map
 	private UnfoldingMap map;
 	int i = 0; // for printing only, delete after finishing the code
+	int j = 0; // for printing only, delete after finishing the code
 	
 	// Markers for each city
 	private List<Marker> cityMarkers;
@@ -100,7 +103,7 @@ public class EarthquakeCityMap extends PApplet {
 		//     STEP 3: read in earthquake RSS feed
 	    List<PointFeature> earthquakes = ParseFeed.parseEarthquake(this, earthquakesURL);
 	    quakeMarkers = new ArrayList<Marker>();
-	    
+	    	    
 	    for(PointFeature feature : earthquakes) {
 		  //check if LandQuake
 		  if(isLand(feature)) {
@@ -111,7 +114,7 @@ public class EarthquakeCityMap extends PApplet {
 		    quakeMarkers.add(new OceanQuakeMarker(feature));
 		  }
 	    }
-
+	   
 	    // could be used for debugging
 	    printQuakes();
 	 		
@@ -163,32 +166,17 @@ public class EarthquakeCityMap extends PApplet {
 	// and returns true.  Notice that the helper method isInCountry will
 	// set this "country" property already.  Otherwise it returns false.
 	private boolean isLand(PointFeature earthquake) {
-		
-		for(Marker country : countryMarkers){
-			boolean isQuakeOnLand = isInCountry(earthquake, country);
-			System.out.println(country.getClass());
+						
+		// checks if earthquake is inside any country, if "yes" it returns TRUE
+		for (Marker country : countryMarkers){   
+			
+			if(isInCountry(earthquake, country)){
+				
+				return true;
+			}		
 		}
 		
-			
-		SimplePointMarker quake = new SimplePointMarker();
-		quake.setLocation(earthquake.getLocation());
-		quake.setColor(color(255,10,10));
-			
-		//if (isQuakeOnLand == true){
-			//Object whichCountry = earthquake.getProperties();
-			//System.out.println(whichCountry);
-		//}
-		
-		
-		//map.addMarker(country);
-		map.addMarker(quake);
-		
-		//System.out.println(isQuakeOnLand);
-		
-		
-		//System.out.println(i + ". " + earthquake.getProperties());
-		//i++;
-		// not inside any country
+		// if not inside any country, it returns FALSE
 		return false;
 	}
 	
@@ -200,7 +188,34 @@ public class EarthquakeCityMap extends PApplet {
 	// And LandQuakeMarkers have a "country" property set.
 	private void printQuakes() 
 	{
-		// TODO: Implement this method
+		int i = 0;
+		int j = 0;
+		int quakeCount = 0;
+		String [] quakeCountry = new String[quakeMarkers.size()];
+				
+				
+		for (Marker quake : quakeMarkers){
+			
+			// if there is no "country" property, it means that quake was on ocean 
+			if(quake.getProperty("country") == null){	
+				i++;
+			}
+			// else (if there is "country" property), it means that quake was on land
+			else{			
+				quakeCountry[j] = quake.getProperty("country").toString();
+				j++;
+				
+				System.out.println(j + ". " +quakeCountry[j-1]);
+				
+				
+			}
+		}
+		System.out.println("Total earthquakes: " + quakeMarkers.size());
+		System.out.println("On sea earthquakes: " + i);
+		System.out.println("On land earthquakes: " + j);
+		
+		
+		
 	}
 	
 	
@@ -223,7 +238,7 @@ public class EarthquakeCityMap extends PApplet {
 				// checking if inside
 				if(((AbstractShapeMarker)marker).isInsideByLocation(checkLoc)) {
 					earthquake.addProperty("country", country.getProperty("name"));
-						
+											
 					// return if is inside one
 					return true;
 				}
@@ -233,10 +248,12 @@ public class EarthquakeCityMap extends PApplet {
 		// check if inside country represented by SimplePolygonMarker
 		else if(((AbstractShapeMarker)country).isInsideByLocation(checkLoc)) {
 			earthquake.addProperty("country", country.getProperty("name"));
-			
+						
 			return true;
 		}
+		
 		return false;
+		
 	}
 
 }
