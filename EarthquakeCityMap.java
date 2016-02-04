@@ -54,9 +54,7 @@ public class EarthquakeCityMap extends PApplet {
 	
 	// The map
 	private UnfoldingMap map;
-	int i = 0; // for printing only, delete after finishing the code
-	int j = 0; // for printing only, delete after finishing the code
-	
+		
 	// Markers for each city
 	private List<Marker> cityMarkers;
 	// Markers for each earthquake
@@ -188,34 +186,43 @@ public class EarthquakeCityMap extends PApplet {
 	// And LandQuakeMarkers have a "country" property set.
 	private void printQuakes() 
 	{
-		int i = 0;
-		int j = 0;
-		int quakeCount = 0;
-		String [] quakeCountry = new String[quakeMarkers.size()];
-				
+		int oceanQuake = 0;
+		int landQuake = 0;
+		
+		List <Marker> landQuakeMarkers = new ArrayList<Marker>();
+		String [] quakeCountries = new String[quakeMarkers.size()];
 				
 		for (Marker quake : quakeMarkers){
 			
 			// if there is no "country" property, it means that quake was on ocean 
 			if(quake.getProperty("country") == null){	
-				i++;
+				oceanQuake++;
 			}
 			// else (if there is "country" property), it means that quake was on land
 			else{			
-				quakeCountry[j] = quake.getProperty("country").toString();
-				j++;
-				
-				System.out.println(j + ". " +quakeCountry[j-1]);
-				
-				
+				quakeCountries[landQuake] = quake.getProperty("country").toString();
+				landQuakeMarkers.add(quake);
+				landQuake++;
 			}
+			howManyQuakesInCountry(landQuakeMarkers, quakeCountries);
 		}
 		System.out.println("Total earthquakes: " + quakeMarkers.size());
-		System.out.println("On sea earthquakes: " + i);
-		System.out.println("On land earthquakes: " + j);
+		System.out.println("On sea earthquakes: " + oceanQuake);
+		System.out.println("On land earthquakes: " + landQuake);
 		
+	}
+	
+	public void howManyQuakesInCountry (List<Marker> landQuakeMarkers, String [] quakeCountries){
 		
+		int i = 0;
+		int j = 0;
 		
+		for (Marker quake : landQuakeMarkers){
+			
+			if (quake.getProperty("country") == quakeCountries[i]){
+					j++;
+			}
+		}
 	}
 	
 	
