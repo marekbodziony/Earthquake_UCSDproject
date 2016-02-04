@@ -204,25 +204,39 @@ public class EarthquakeCityMap extends PApplet {
 				landQuakeMarkers.add(quake);
 				landQuake++;
 			}
-			howManyQuakesInCountry(landQuakeMarkers, quakeCountries);
+			
 		}
+		
+		howManyQuakesInCountry(quakeCountries);
+		
 		System.out.println("Total earthquakes: " + quakeMarkers.size());
 		System.out.println("On sea earthquakes: " + oceanQuake);
 		System.out.println("On land earthquakes: " + landQuake);
 		
+		
+		
 	}
 	
-	public void howManyQuakesInCountry (List<Marker> landQuakeMarkers, String [] quakeCountries){
+	public void howManyQuakesInCountry (String [] quakeCountries){
 		
-		int i = 0;
-		int j = 0;
+		int i,j;
+		int size = quakeCountries.length;
 		
-		for (Marker quake : landQuakeMarkers){
+		for (i = 0; i < size; i++){
 			
-			if (quake.getProperty("country") == quakeCountries[i]){
+			for (j = 0; j < size; j++){
+
+				if((quakeCountries[i] != null) && (quakeCountries[i] == quakeCountries[j])){
+					
+					//System.out.println(quakeCountries[j]);
+					quakeCountries[j] = null;
 					j++;
-			}
+				}
+			} System.out.println(quakeCountries[i] + " : " + j);
+			
+			i++;
 		}
+		
 	}
 	
 	
