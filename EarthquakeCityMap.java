@@ -208,6 +208,7 @@ public class EarthquakeCityMap extends PApplet {
 		}
 		
 		howManyQuakesInCountry(quakeCountries);
+		System.out.println("--------------");
 		
 		System.out.println("Total earthquakes: " + quakeMarkers.size());
 		System.out.println("On sea earthquakes: " + oceanQuake);
@@ -217,24 +218,27 @@ public class EarthquakeCityMap extends PApplet {
 		
 	}
 	
+	// helper method to count how many quakes was in a specified country and print country name with quakes values
 	public void howManyQuakesInCountry (String [] quakeCountries){
 		
 		int i,j;
-		int size = quakeCountries.length;
-		
-		for (i = 0; i < size; i++){
+		int k = 1;
+		//String [] test = {"AAA","BBB","CCC","DDD","AAA",null,"BBB","DDD","DDD","DDD"};
+				
+		for (i = 0; i < quakeCountries.length; i++){
 			
-			for (j = 0; j < size; j++){
+			for (j = i+1; j < quakeCountries.length; j++){
 
-				if((quakeCountries[i] != null) && (quakeCountries[i] == quakeCountries[j])){
+				if((quakeCountries[i] != null) && (quakeCountries[i] == quakeCountries[j])){ 
 					
-					//System.out.println(quakeCountries[j]);
 					quakeCountries[j] = null;
-					j++;
-				}
-			} System.out.println(quakeCountries[i] + " : " + j);
-			
-			i++;
+					k++;
+				}	
+			}
+			if (quakeCountries[i] != null){
+				System.out.println(quakeCountries[i] + " : " + k);
+			}
+			k = 1;
 		}
 		
 	}
