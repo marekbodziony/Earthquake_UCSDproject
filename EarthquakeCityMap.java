@@ -223,8 +223,7 @@ public class EarthquakeCityMap extends PApplet {
 		
 		int i,j;
 		int k = 1;
-		//String [] test = {"AAA","BBB","CCC","DDD","AAA",null,"BBB","DDD","DDD","DDD"};
-				
+		
 		for (i = 0; i < quakeCountries.length; i++){
 			
 			for (j = i+1; j < quakeCountries.length; j++){
