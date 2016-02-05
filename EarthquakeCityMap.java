@@ -186,8 +186,8 @@ public class EarthquakeCityMap extends PApplet {
 	// And LandQuakeMarkers have a "country" property set.
 	private void printQuakes() 
 	{
-		int oceanQuake = 0;
-		int landQuake = 0;
+		int oceanQuakeNum = 0;
+		int landQuakeNum = 0;
 		
 		List <Marker> landQuakeMarkers = new ArrayList<Marker>();
 		String [] quakeCountries = new String[quakeMarkers.size()];
@@ -196,37 +196,37 @@ public class EarthquakeCityMap extends PApplet {
 			
 			// if there is no "country" property, it means that quake was on ocean 
 			if(quake.getProperty("country") == null){	
-				oceanQuake++;
+				oceanQuakeNum++;
 			}
 			// else (if there is "country" property), it means that quake was on land
 			else{			
-				quakeCountries[landQuake] = quake.getProperty("country").toString();
+				quakeCountries[landQuakeNum] = quake.getProperty("country").toString();
 				landQuakeMarkers.add(quake);
-				landQuake++;
+				landQuakeNum++;
 			}
 			
 		}
 		
-		howManyQuakesInCountry(quakeCountries);
+		howManyQuakesInCountry(quakeCountries, landQuakeNum);
 		System.out.println("--------------");
 		
 		System.out.println("Total earthquakes: " + quakeMarkers.size());
-		System.out.println("On sea earthquakes: " + oceanQuake);
-		System.out.println("On land earthquakes: " + landQuake);
+		System.out.println("On sea earthquakes: " + oceanQuakeNum);
+		System.out.println("On land earthquakes: " + landQuakeNum);
 		
 		
 		
 	}
 	
 	// helper method to count how many quakes was in a specified country and print country name with quakes values
-	public void howManyQuakesInCountry (String [] quakeCountries){
+	public void howManyQuakesInCountry (String [] quakeCountries, int landQuakeNum){
 		
 		int i,j;
 		int k = 1;
 		
-		for (i = 0; i < quakeCountries.length; i++){
+		for (i = 0; i < landQuakeNum; i++){
 			
-			for (j = i+1; j < quakeCountries.length; j++){
+			for (j = i+1; j < landQuakeNum; j++){
 
 				if((quakeCountries[i] != null) && (quakeCountries[i] == quakeCountries[j])){ 
 					
