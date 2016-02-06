@@ -80,6 +80,31 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 	}
 	
 	
+	public int setMarkerSize(){
+		
+		int markerSize = 0;
+		float quakeMagnitude = getMagnitude();
+		
+		if (quakeMagnitude < THRESHOLD_LIGHT){
+			markerSize = 5;
+		}
+		if ( quakeMagnitude >= THRESHOLD_LIGHT && quakeMagnitude  < THRESHOLD_MODERATE){
+			markerSize = 10;
+		}
+		if ( quakeMagnitude >= THRESHOLD_MODERATE && quakeMagnitude  < THRESHOLD_INTERMEDIATE){
+			markerSize = 15;
+		}
+		if ( quakeMagnitude >= THRESHOLD_INTERMEDIATE && quakeMagnitude  < THRESHOLD_DEEP){
+			markerSize = 20;
+		}
+		if ( quakeMagnitude >= THRESHOLD_DEEP){
+			markerSize = 25;
+		}
+		
+		return markerSize;
+	}
+	
+	
 	/*
 	 * getters for earthquake properties
 	 */
