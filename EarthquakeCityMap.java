@@ -19,6 +19,7 @@ import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import parsing.ParseFeed;
 import processing.core.PApplet;
+import processing.core.PGraphics;
 
 /** EarthquakeCityMap
  * An application with an interactive map displaying earthquake data.
@@ -62,6 +63,8 @@ public class EarthquakeCityMap extends PApplet {
 
 	// A List of country markers
 	private List<Marker> countryMarkers;
+	
+
 	
 	public void setup() {		
 		// (1) Initializing canvas and map tiles
@@ -114,14 +117,14 @@ public class EarthquakeCityMap extends PApplet {
 	    }
 	   
 	    // could be used for debugging
-	    printQuakes();
+	    //printQuakes();
 	 		
 	    // (3) Add markers to map
 	    //     NOTE: Country markers are not added to the map.  They are used
 	    //           for their geometric properties
 	    map.addMarkers(quakeMarkers);
 	    map.addMarkers(cityMarkers);
-	    
+
 	}  // End setup
 	
 	
@@ -130,6 +133,8 @@ public class EarthquakeCityMap extends PApplet {
 		map.draw();
 		addKey();
 		
+		
+		
 	}
 	
 	// helper method to draw key in GUI
@@ -137,7 +142,7 @@ public class EarthquakeCityMap extends PApplet {
 	private void addKey() {	
 		// Remember you can use Processing's graphics methods here
 		fill(255, 250, 240);
-		rect(25, 50, 150, 250);
+		rect(25, 50, 150, 450);
 		
 		fill(0);
 		textAlign(LEFT, CENTER);
@@ -151,10 +156,16 @@ public class EarthquakeCityMap extends PApplet {
 		fill(color(0, 0, 255));
 		ellipse(50, 225, 5, 5);
 		
+		fill(200,30,30);
+		triangle(50,270, 45,280, 55, 280);
+		
 		fill(0, 0, 0);
 		text("5.0+ Magnitude", 75, 125);
 		text("4.0+ Magnitude", 75, 175);
 		text("Below 4.0", 75, 225);
+		text("City Marker", 75, 275);
+		
+		
 	}
 
 	
