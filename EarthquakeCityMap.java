@@ -1,308 +1,163 @@
 package module4;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import de.fhpotsdam.unfolding.UnfoldingMap;
-import de.fhpotsdam.unfolding.data.Feature;
-import de.fhpotsdam.unfolding.data.GeoJSONReader;
 import de.fhpotsdam.unfolding.data.PointFeature;
-import de.fhpotsdam.unfolding.geo.Location;
-import de.fhpotsdam.unfolding.marker.AbstractShapeMarker;
-import de.fhpotsdam.unfolding.marker.Marker;
-import de.fhpotsdam.unfolding.marker.MultiMarker;
 import de.fhpotsdam.unfolding.marker.SimplePointMarker;
-import de.fhpotsdam.unfolding.providers.Google;
-import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
-import de.fhpotsdam.unfolding.utils.MapUtils;
-import parsing.ParseFeed;
-import processing.core.PApplet;
 import processing.core.PGraphics;
 
-/** EarthquakeCityMap
- * An application with an interactive map displaying earthquake data.
- * Author: UC San Diego Intermediate Software Development MOOC team
+/** Implements a visual marker for earthquakes on an earthquake map
+ * 
+ * @author UC San Diego Intermediate Software Development MOOC team
  * @author Marek Bodziony
- * Date: February 1, 2016
- * */
-public class EarthquakeCityMap extends PApplet {
+ *
+ */
+public abstract class EarthquakeMarker extends SimplePointMarker
+{
 	
-	// We will use member variables, instead of local variables, to store the data
-	// that the setUp and draw methods will need to access (as well as other methods)
-	// You will use many of these variables, but the only one you should need to add
-	// code to modify is countryQuakes, where you will store the number of earthquakes
-	// per country.
-	
-	// You can ignore this.  It's to get rid of eclipse warnings
-	private static final long serialVersionUID = 1L;
+	// Did the earthquake occur on land?  This will be set by the subclasses.
+	protected boolean isOnLand;
 
-	// IF YOU ARE WORKING OFFILINE, change the value of this variable to true
-	private static final boolean offline = false;
+	// The radius of the Earthquake marker
+	// You will want to set this in the constructor, either
+	// using the thresholds below, or a continuous function
+	// based on magnitude. 
+	protected float radius;
 	
-	/** This is where to find the local tiles, for working without an Internet connection */
-	public static String mbTilesString = "blankLight-1-3.mbtiles";
+	public float quakeDepth;
 	
+	public String quakeDate;
 	
+	/** Greater than or equal to this threshold is a moderate earthquake */
+	public static final float THRESHOLD_MODERATE = 5;
+	/** Greater than or equal to this threshold is a light earthquake */
+	public static final float THRESHOLD_LIGHT = 4;
 
-	//feed with magnitude 2.5+ Earthquakes
-	private String earthquakesURL = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
-	
-	// The files containing city names and info and country names and info
-	private String cityFile = "city-data.json";
-	private String countryFile = "countries.geo.json";
-	
-	// The map
-	private UnfoldingMap map;
-		
-	// Markers for each city
-	private List<Marker> cityMarkers;
-	// Markers for each earthquake
-	private List<Marker> quakeMarkers;
+	/** Greater than or equal to this threshold is an intermediate depth */
+	public static final float THRESHOLD_INTERMEDIATE = 70;
+	/** Greater than or equal to this threshold is a deep depth */
+	public static final float THRESHOLD_DEEP = 300;
 
-	// A List of country markers
-	private List<Marker> countryMarkers;
-	
-
-	
-	public void setup() {		
-		// (1) Initializing canvas and map tiles
-		size(900, 700, OPENGL);
-		if (offline) {
-		    map = new UnfoldingMap(this, 200, 50, 650, 600, new MBTilesMapProvider(mbTilesString));
-		    earthquakesURL = "2.5_week.atom";  // The same feed, but saved August 7, 2015
-		}
-		else {
-			map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
-			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
-		    //earthquakesURL = "2.5_week.atom";
-		}
-		MapUtils.createDefaultEventDispatcher(this, map);
-		
-		// FOR TESTING: Set earthquakesURL to be one of the testing files by uncommenting
-		// one of the lines below.  This will work whether you are online or offline
-		//earthquakesURL = "test1.atom";
-		//earthquakesURL = "test2.atom";
-		
-		// WHEN TAKING THIS QUIZ: Uncomment the next line
-		//earthquakesURL = "quiz1.atom";
-		
-		
-		// (2) Reading in earthquake data and geometric properties
-	    //     STEP 1: load country features and markers
-		List<Feature> countries = GeoJSONReader.loadData(this, countryFile);
-		countryMarkers = MapUtils.createSimpleMarkers(countries);
-		
-		//     STEP 2: read in city data
-		List<Feature> cities = GeoJSONReader.loadData(this, cityFile);
-		cityMarkers = new ArrayList<Marker>();
-		for(Feature city : cities) {
-		  cityMarkers.add(new CityMarker(city));
-		}
-	    
-		//     STEP 3: read in earthquake RSS feed
-	    List<PointFeature> earthquakes = ParseFeed.parseEarthquake(this, earthquakesURL);
-	    quakeMarkers = new ArrayList<Marker>();
-	    	    
-	    for(PointFeature feature : earthquakes) {
-		  //check if LandQuake
-		  if(isLand(feature)) {
-		    quakeMarkers.add(new LandQuakeMarker(feature));
-		  }
-		  // OceanQuakes
-		  else {
-		    quakeMarkers.add(new OceanQuakeMarker(feature));
-		  }
-	    }
-	   
-	    // could be used for debugging
-	    //printQuakes();
-	 		
-	    // (3) Add markers to map
-	    //     NOTE: Country markers are not added to the map.  They are used
-	    //           for their geometric properties
-	    map.addMarkers(quakeMarkers);
-	    map.addMarkers(cityMarkers);
-
-	}  // End setup
+	// ADD constants for colors
 	
 	
-	public void draw() {
-		background(0);
-		map.draw();
-		addKey();
+	// abstract method implemented in derived classes
+	public abstract void drawEarthquake(PGraphics pg, float x, float y);
 		
-		
-		
-	}
 	
-	// helper method to draw key in GUI
-	// TODO: Update this method as appropriate
-	private void addKey() {	
-		// Remember you can use Processing's graphics methods here
-		fill(255, 250, 240);
-		rect(25, 50, 150, 450);
-		
-		fill(0);
-		textAlign(LEFT, CENTER);
-		textSize(12);
-		text("Earthquake Key", 50, 75);
-		
-		fill(200,30,30);
-		triangle(50,120, 45,130, 55, 130);
-		fill(0);
-		text("City Marker", 75, 125);
-		
-		fill(255);
-		ellipse(50, 150, 10, 10);
-		rect(45,170,10,10);
-
-		fill(0, 0, 0);
-		text("Land Quake", 75, 150);
-		text("Ocean Quake", 75, 175);
-		
-		fill(0);
-		text("Size ~ Magnitude", 45,200);
-		
-		fill(255,255,0);
-		ellipse(50, 250, 10,10);
-		fill(0);
-		text("Shallow", 75, 250);
-		
-		fill(0,0,255);
-		ellipse(50, 275, 10,10);
-		fill(0);
-		text("Intermediate", 75, 275);
-		
-		fill(255,0,0);
-		ellipse(50, 300, 10,10);
-		fill(0);
-		text("Deep", 75, 300);
-		
-	}
-
-	
-	
-	// Checks whether this quake occurred on land.  If it did, it sets the 
-	// "country" property of its PointFeature to the country where it occurred
-	// and returns true.  Notice that the helper method isInCountry will
-	// set this "country" property already.  Otherwise it returns false.
-	private boolean isLand(PointFeature earthquake) {
-						
-		// checks if earthquake is inside any country, if "yes" it returns TRUE
-		for (Marker country : countryMarkers){   
-			
-			if(isInCountry(earthquake, country)){
-				
-				return true;
-			}		
-		}
-		
-		// if not inside any country, it returns FALSE
-		return false;
-	}
-	
-	// prints countries with number of earthquakes
-	// You will want to loop through the country markers or country features
-	// (either will work) and then for each country, loop through
-	// the quakes to count how many occurred in that country.
-	// Recall that the country markers have a "name" property, 
-	// And LandQuakeMarkers have a "country" property set.
-	private void printQuakes() 
+	// constructor
+	public EarthquakeMarker (PointFeature feature) 
 	{
-		int oceanQuakeNum = 0;
-		int landQuakeNum = 0;
+		super(feature.getLocation());
+		// Add a radius property and then set the properties
+		java.util.HashMap<String, Object> properties = feature.getProperties();
+		float magnitude = Float.parseFloat(properties.get("magnitude").toString());
+		properties.put("radius", 2*magnitude );
+		setProperties(properties);
+		this.radius = 1.75f*getMagnitude();
 		
-		List <Marker> landQuakeMarkers = new ArrayList<Marker>();
-		String [] quakeCountries = new String[quakeMarkers.size()];
-				
-		for (Marker quake : quakeMarkers){
-			
-			// if there is no "country" property, it means that quake was on ocean 
-			if(quake.getProperty("country") == null){	
-				oceanQuakeNum++;
-			}
-			// else (if there is "country" property), it means that quake was on land
-			else{			
-				quakeCountries[landQuakeNum] = quake.getProperty("country").toString();
-				landQuakeMarkers.add(quake);
-				landQuakeNum++;
-			}
-			
-		}
-		
-		howManyQuakesInCountry(quakeCountries, landQuakeNum);
-		System.out.println("--------------");
-		
-		System.out.println("Total earthquakes: " + quakeMarkers.size());
-		System.out.println("On sea earthquakes: " + oceanQuakeNum);
-		System.out.println("On land earthquakes: " + landQuakeNum);
-		
-		
+		quakeDepth = Float.parseFloat(feature.getProperty("depth").toString());
+
+		quakeDate = feature.getProperty("age").toString();
 		
 	}
 	
-	// helper method to count how many quakes was in a specified country and print country name with quakes values
-	public void howManyQuakesInCountry (String [] quakeCountries, int landQuakeNum){
-		
-		int i,j;
-		int k = 1;
-		
-		for (i = 0; i < landQuakeNum; i++){
-			
-			for (j = i+1; j < landQuakeNum; j++){
 
-				if((quakeCountries[i] != null) && (quakeCountries[i] == quakeCountries[j])){ 
-					
-					quakeCountries[j] = null;
-					k++;
-				}	
-			}
-			if (quakeCountries[i] != null){
-				System.out.println(quakeCountries[i] + " : " + k);
-			}
-			k = 1;
-		}
+	// calls abstract method drawEarthquake and then checks age and draws X if needed
+	public void draw(PGraphics pg, float x, float y) {
+		// save previous styling
+		pg.pushStyle();
+			
+		// determine color of marker from depth
+		colorDetermine(pg);
+		
+		// call abstract method implemented in child class to draw marker shape
+		drawEarthquake(pg, x, y);
+		
+		// OPTIONAL TODO: draw X over marker if within past day		
+		drwaXForLastDayQuake(pg,x,y);
+		
+		// reset to previous styling
+		pg.popStyle();
 		
 	}
 	
-	
-	
-	// helper method to test whether a given earthquake is in a given country
-	// This will also add the country property to the properties of the earthquake 
-	// feature if it's in one of the countries.
-	// You should not have to modify this code
-	private boolean isInCountry(PointFeature earthquake, Marker country) {
-		// getting location of feature
-		Location checkLoc = earthquake.getLocation();
-
-		// some countries represented it as MultiMarker
-		// looping over SimplePolygonMarkers which make them up to use isInsideByLoc
-		if(country.getClass() == MultiMarker.class) {
-				
-			// looping over markers making up MultiMarker
-			for(Marker marker : ((MultiMarker)country).getMarkers()) {
-					
-				// checking if inside
-				if(((AbstractShapeMarker)marker).isInsideByLocation(checkLoc)) {
-					earthquake.addProperty("country", country.getProperty("name"));
-											
-					// return if is inside one
-					return true;
-				}
-			}
-		}
+	// determine color of marker from depth
+	// We suggest: Deep = red, intermediate = blue, shallow = yellow
+	// But this is up to you, of course.
+	// You might find the getters below helpful.
+	private void colorDetermine(PGraphics pg) {
 			
-		// check if inside country represented by SimplePolygonMarker
-		else if(((AbstractShapeMarker)country).isInsideByLocation(checkLoc)) {
-			earthquake.addProperty("country", country.getProperty("name"));
-						
-			return true;
+		if (quakeDepth <= 70){
+			pg.fill(255,255,0);						//yellow
+		}
+		if (quakeDepth > 70 && quakeDepth <= 300){
+			pg.fill(0,0,255);						// blue
+		}
+		if (quakeDepth > 300){
+			pg.fill(255,0,0);						// red
+		}
+
+	}
+	
+	public void drwaXForLastDayQuake(PGraphics pg, float x, float y){
+		
+		if (quakeDate.equals("Past Day")){
+			pg.fill(0);
+			pg.textSize(20);
+			pg.text("x",x-5.7f,y+6);
+		}
+	}
+	
+	
+	public int setMarkerSize(){
+		
+		int markerSize = 0;
+		float quakeMagnitude = getMagnitude();
+		
+		if (quakeMagnitude < THRESHOLD_LIGHT){
+			markerSize = 5;
+		}
+		if ( quakeMagnitude >= THRESHOLD_LIGHT && quakeMagnitude  < THRESHOLD_MODERATE){
+			markerSize = 10;
+		}
+		if ( quakeMagnitude >= THRESHOLD_MODERATE && quakeMagnitude  < THRESHOLD_INTERMEDIATE){
+			markerSize = 15;
+		}
+		if ( quakeMagnitude >= THRESHOLD_INTERMEDIATE && quakeMagnitude  < THRESHOLD_DEEP){
+			markerSize = 20;
+		}
+		if ( quakeMagnitude >= THRESHOLD_DEEP){
+			markerSize = 25;
 		}
 		
-		return false;
+		return markerSize;
+	}
+	
+	
+	/*
+	 * getters for earthquake properties
+	 */
+	
+	public float getMagnitude() {
+		return Float.parseFloat(getProperty("magnitude").toString());
+	}
+	
+	public float getDepth() {
+		return Float.parseFloat(getProperty("depth").toString());	
+	}
+	
+	public String getTitle() {
+		return (String) getProperty("title");	
 		
 	}
-
+	
+	public float getRadius() {
+		return Float.parseFloat(getProperty("radius").toString());
+	}
+	
+	public boolean isOnLand()
+	{
+		return isOnLand;
+	}
+	
+	
 }
