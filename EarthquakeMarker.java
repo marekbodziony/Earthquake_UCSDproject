@@ -24,6 +24,8 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 	
 	public float quakeDepth;
 	
+	public String quakeDate;
+	
 	/** Greater than or equal to this threshold is a moderate earthquake */
 	public static final float THRESHOLD_MODERATE = 5;
 	/** Greater than or equal to this threshold is a light earthquake */
@@ -52,8 +54,10 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 		setProperties(properties);
 		this.radius = 1.75f*getMagnitude();
 		
-		String quakeDepthValue = feature.getProperty("depth").toString();
-		quakeDepth = Float.parseFloat(quakeDepthValue);
+		quakeDepth = Float.parseFloat(feature.getProperty("depth").toString());
+
+		quakeDate = feature.getProperty("age").toString();
+		
 	}
 	
 
@@ -69,6 +73,7 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 		drawEarthquake(pg, x, y);
 		
 		// OPTIONAL TODO: draw X over marker if within past day		
+		drwaXForLastDayQuake(pg,x,y);
 		
 		// reset to previous styling
 		pg.popStyle();
@@ -91,6 +96,17 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 			pg.fill(255,0,0);						// red
 		}
 
+	}
+	
+	public void drwaXForLastDayQuake(PGraphics pg, float x, float y){
+		//String quakeDate = "Past Day";
+		
+		
+		if (quakeDate == "Past Day"){
+			pg.fill(0);
+			pg.textSize(20);
+			pg.text("x",x-5.7f,y+6);
+		}
 	}
 	
 	
